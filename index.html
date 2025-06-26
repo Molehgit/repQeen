@@ -172,7 +172,7 @@
           }
           doc.text(item.color, 50, y);
           doc.text(item.colorRef, 100, y);
-          doc.text(item.qty, 150, y);
+          doc.text(item.qty.toString(), 190, y, { align: "right" });
           y += 8;
         });
       });
@@ -183,7 +183,7 @@
       y += 8;
       doc.setFont("helvetica", "bold");
       doc.text("Total:", 130, y);
-      doc.text(totalQty.toString(), 150, y);
+      doc.text(totalQty.toString(), 190, y, { align: "right" });
 
       doc.save(`Fabric_Order_${orderNumber}.pdf`);
     }
