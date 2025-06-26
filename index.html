@@ -87,12 +87,15 @@
 
     // Show order info
     document.getElementById("order-info").innerHTML = `
-      <div><strong>Order:</strong> ${orderNumber}</div>
-      <div style="text-align: right;"><strong>Date:</strong> ${orderDate}</div>
-      <br/>
-      <strong>Description:</strong><br/>
-      <strong>Notes:</strong>
-    `;
+  <div style="display: flex; justify-content: space-between;">
+    <div><strong>Order:</strong> ${orderNumber}</div>
+    <div><strong>Date:</strong> ${orderDate}</div>
+  </div>
+  <div style="margin-top: 20px;">
+    <div><strong>Description:</strong></div>
+    <div><strong>Notes:</strong></div>
+  </div>
+`;
 
     // Group by Fabric
     const groupedData = {};
