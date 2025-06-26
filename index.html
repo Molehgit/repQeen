@@ -22,8 +22,9 @@
       padding: 6px;
       text-align: left;
     }
-    .header-row th {
+    .fabric-header {
       background-color: #f2f2f2;
+      font-weight: bold;
     }
     .total-row {
       font-weight: bold;
@@ -55,7 +56,7 @@
       </tr>
     </thead>
     <tbody id="order-body">
-      <!-- Data will be injected here -->
+      <!-- Grouped data will be injected here -->
     </tbody>
     <tfoot>
       <tr class="total-row">
@@ -68,9 +69,8 @@
   <button onclick="downloadPDF()">Download as PDF</button>
 
   <script>
-    // Parse URL parameters
     const params = new URLSearchParams(window.location.search);
-    const orderNumber = params.get("order") || "***N*********";
+    const orderNumber = params.get("order") || "************";
     const orderDate = params.get("date") || "************";
 
     let dataList = [];
@@ -88,30 +88,37 @@
       <strong>Notes:</strong>
     `;
 
-    // Populate table rows
-    const tbody = document.getElementById("order-body");
+    // Group by Fabric
+    const groupedData = {};
     let totalQty = 0;
 
-    if (dataList.length === 0) {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td colspan="4" style="text-align:center;">No items found</td>`;
-      tbody.appendChild(row);
-    } else {
-      dataList.forEach(item => {
+    dataList.forEach(([fabric, color, colorRef, qty]) => {
+      if (!groupedData[fabric]) {
+        groupedData[fabric] = [];
+      }
+      groupedData[fabric].push({ color, colorRef, qty });
+      totalQty += parseFloat(qty) || 0;
+    });
+
+    // Populate table
+    const tbody = document.getElementById("order-body");
+    Object.entries(groupedData).forEach(([fabric, items]) => {
+      const fabricRow = document.createElement("tr");
+      fabricRow.className = "fabric-header";
+      fabricRow.innerHTML = `<td colspan="4">${fabric}</td>`;
+      tbody.appendChild(fabricRow);
+
+      items.forEach(item => {
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${item[0]}</td>
-          <td>${item[1]}</td>
-          <td>${item[2]}</td>
-          <td>${item[3]}</td>
+          <td></td>
+          <td>${item.color}</td>
+          <td>${item.colorRef}</td>
+          <td>${item.qty}</td>
         `;
         tbody.appendChild(row);
-
-        // Add to total quantity
-        const qty = parseFloat(item[3]);
-        if (!isNaN(qty)) totalQty += qty;
       });
-    }
+    });
 
     document.getElementById("total-qty").textContent = totalQty;
 
@@ -146,17 +153,28 @@
       doc.line(10, y, 200, y); // Line under header
       y += 5;
 
-      // Table rows
-      dataList.forEach(item => {
+      // Grouped PDF content
+      Object.entries(groupedData).forEach(([fabric, items]) => {
         if (y > 280) {
           doc.addPage();
           y = 20;
         }
-        doc.text(item[0], 10, y);
-        doc.text(item[1], 50, y);
-        doc.text(item[2], 100, y);
-        doc.text(item[3], 150, y);
+
+        doc.setFont("helvetica", "bold");
+        doc.text(fabric, 10, y);
         y += 8;
+
+        doc.setFont("helvetica", "normal");
+        items.forEach(item => {
+          if (y > 280) {
+            doc.addPage();
+            y = 20;
+          }
+          doc.text(item.color, 50, y);
+          doc.text(item.colorRef, 100, y);
+          doc.text(item.qty, 150, y);
+          y += 8;
+        });
       });
 
       // Total
@@ -170,6 +188,5 @@
       doc.save(`Fabric_Order_${orderNumber}.pdf`);
     }
   </script>
-
 </body>
 </html>
