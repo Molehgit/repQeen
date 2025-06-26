@@ -183,7 +183,7 @@
       y += 8;
       doc.setFont("helvetica", "bold");
       doc.text("Total:", 130, y);
-      doc.text(totalQty.toString(), 150, y);
+      doc.text(totalQty.toString(), 150, y, { align: "right" });
 
       doc.save(`Fabric_Order_${orderNumber}.pdf`);
     }
