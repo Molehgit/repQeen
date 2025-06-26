@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Fabric Order Viewer</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js "></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -21,6 +21,11 @@
       border: 1px solid #333;
       padding: 6px;
       text-align: left;
+    }
+    td:nth-child(4),
+    th:nth-child(4),
+    #total-qty {
+      text-align: right;
     }
     .fabric-header {
       background-color: #f2f2f2;
@@ -80,10 +85,11 @@
       alert("Error parsing order data.");
     }
 
-    // Populate header info
+    // Show order info
     document.getElementById("order-info").innerHTML = `
-      <strong>Order:</strong> ${orderNumber}<br/>
-      <strong>Date:</strong> ${orderDate}<br/><br/>
+      <div><strong>Order:</strong> ${orderNumber}</div>
+      <div style="text-align: right;"><strong>Date:</strong> ${orderDate}</div>
+      <br/>
       <strong>Description:</strong><br/>
       <strong>Notes:</strong>
     `;
@@ -100,7 +106,7 @@
       totalQty += parseFloat(qty) || 0;
     });
 
-    // Populate table
+    // Fill table body
     const tbody = document.getElementById("order-body");
     Object.entries(groupedData).forEach(([fabric, items]) => {
       const fabricRow = document.createElement("tr");
@@ -114,7 +120,7 @@
           <td></td>
           <td>${item.color}</td>
           <td>${item.colorRef}</td>
-          <td>${item.qty}</td>
+          <td style="text-align: right;">${item.qty}</td>
         `;
         tbody.appendChild(row);
       });
@@ -122,17 +128,17 @@
 
     document.getElementById("total-qty").textContent = totalQty;
 
-    // Generate PDF
+    // PDF generation
     async function downloadPDF() {
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
 
       let y = 20;
 
-      // Header
+      // Order info
       doc.setFontSize(12);
       doc.text(`Order: ${orderNumber}`, 10, y);
-      doc.text(`Date: ${orderDate}`, 150, y, { align: "right" });
+      doc.text(`Date: ${orderDate}`, 200, y, { align: "right" });
 
       y += 10;
       doc.text("Description:", 10, y);
@@ -141,24 +147,21 @@
 
       y += 15;
 
-      // Table headers
+      // Table header
       doc.setFont("helvetica", "bold");
       doc.text("Fabric", 10, y);
       doc.text("Color", 50, y);
       doc.text("Color Ref.", 100, y);
-      doc.text("QTY", 150, y, { align: "right" });
+      doc.text("QTY", 190, y, { align: "right" });
       doc.setFont("helvetica", "normal");
 
       y += 5;
-      doc.line(10, y, 200, y); // Line under header
+      doc.line(10, y, 200, y);
       y += 5;
 
-      // Grouped PDF content
+      // Table data
       Object.entries(groupedData).forEach(([fabric, items]) => {
-        if (y > 280) {
-          doc.addPage();
-          y = 20;
-        }
+        if (y > 280) { doc.addPage(); y = 20; }
 
         doc.setFont("helvetica", "bold");
         doc.text(fabric, 10, y);
@@ -166,10 +169,7 @@
 
         doc.setFont("helvetica", "normal");
         items.forEach(item => {
-          if (y > 280) {
-            doc.addPage();
-            y = 20;
-          }
+          if (y > 280) { doc.addPage(); y = 20; }
           doc.text(item.color, 50, y);
           doc.text(item.colorRef, 100, y);
           doc.text(item.qty.toString(), 190, y, { align: "right" });
