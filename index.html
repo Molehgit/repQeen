@@ -146,7 +146,7 @@
       doc.text("Fabric", 10, y);
       doc.text("Color", 50, y);
       doc.text("Color Ref.", 100, y);
-      doc.text("QTY", 150, y);
+      doc.text("QTY", 150, y, { align: "right" });
       doc.setFont("helvetica", "normal");
 
       y += 5;
@@ -183,7 +183,7 @@
       y += 8;
       doc.setFont("helvetica", "bold");
       doc.text("Total:", 130, y);
-      doc.text(totalQty.toString(), 150, y, { align: "right" });
+      doc.text(totalQty.toString(), 150, y);
 
       doc.save(`Fabric_Order_${orderNumber}.pdf`);
     }
